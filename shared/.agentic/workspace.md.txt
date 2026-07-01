@@ -1,0 +1,11 @@
+# 工作区说明
+
+项目根目录：D:\2026暑期实训\agenticteam
+
+所有智能体应优先读取和写入该项目根目录下的 shared/ 目录。
+
+关键文件：
+- 需求规格说明书：shared/prd/生鲜商城需求规格说明书.md
+- 任务日志：shared/.agentic/task_log.md
+- 事件记录：shared/.agentic/events.jsonl
+- 变更请求：shared/.agentic/change_requests.md

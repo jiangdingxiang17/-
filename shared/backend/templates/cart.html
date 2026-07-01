@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}在线生鲜商城 - 购物车{% endblock %}
+
+{% block content %}
+<!-- 页面标题 -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="text-success mb-0">
+        <span class="me-2">🛒</span>我的购物车
+    </h2>
+    <a href="{{ url_for('index') }}" class="btn btn-outline-success">
+        <span class="me-1">←</span>继续购物
+    </a>
+</div>
+
+{% if cart_items %}
+<!-- 购物车商品列表 -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-success">
+                <tr>
+                    <th class="ps-4">商品信息</th>
+                    <th class="text-center" style="width: 120px;">单价</th>
+                    <th class="text-center" style="width: 150px;">数量</th>
+                    <th class="text-center" style="width: 120px;">小计</th>
+                    <th class="text-center pe-4" style="width: 100px;">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                <tr>
+                    <!-- 商品信息 -->
+                    <td class="ps-4">
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                {% if item.image_url %}
+                                <img src="{{ item.image_url }}" class="rounded" style="width: 60px; height: 60px; object-fit: cover;">
+                                {% else %}
+                                <div class="rounded d-flex align-items-center justify-content-center bg-light" style="width: 60px; height: 60px;">
+                                    <span class="fs-4">
+                                        {% if item.category == '蔬菜' %}🥬{% endif %}
+                                        {% if item.category == '水果' %}🍎{% endif %}
+                                        {% if item.category == '肉类' %}🥩{% endif %}
+                                        {% if item.category == '鱼类' %}🐟{% endif %}
+                                    </span>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <h6 class="mb-1 fw-bold">{{ item.product_name }}</h6>
+                                <small class="text-muted">
+                                    <span class="badge bg-success-subtle text-success-emphasis">{{ item.category }}</span>
+                                    <span class="ms-2 {% if item.stock < 10 %}text-warning{% else %}text-success{% endif %}">
+                                        库存: {{ item.stock }}
+                                    </span>
+                                </small>
+                            </div>
+                        </div>
+                    </td>
+
+                    <!-- 单价 -->
+                    <td class="text-center align-middle">
+                        <span class="fw-bold text-danger">¥{{ item.unit_price }}</span>
+                    </td>
+
+                    <!-- 数量修改 -->
+                    <td class="text-center align-middle">
+                        <form action="{{ url_for('cart_update', item_id=item.cart_item_id) }}" method="post" class="d-inline">
+                            <div class="input-group input-group-sm" style="width: 120px;">
+                                <input type="number" name="quantity" value="{{ item.quantity }}"
+                                       min="0" max="{{ item.stock }}"
+                                       class="form-control text-center" style="width: 60px;">
+                                <button type="submit" class="btn btn-outline-success">更新</button>
+                            </div>
+                        </form>
+                    </td>
+
+                    <!-- 小计 -->
+                    <td class="text-center align-middle">
+                        <span class="fw-bold text-danger fs-5">¥{{ item.subtotal }}</span>
+                    </td>
+
+                    <!-- 删除按钮 -->
+                    <td class="text-center align-middle pe-4">
+                        <form action="{{ url_for('cart_delete', item_id=item.cart_item_id) }}" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('确定要删除此商品吗？')">
+                                删除
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 总金额和结算 -->
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <p class="text-muted mb-0">
+                    购物车共有 <strong class="text-success">{{ cart_items|length }}</strong> 种商品，
+                    共计 <strong class="text-success">{{ cart_count }}</strong> 件
+                </p>
+            </div>
+            <div class="col-md-6">
+                <div class="d-flex justify-content-end align-items-center">
+                    <div class="me-4">
+                        <h4 class="mb-0">
+                            总金额：<span class="text-danger fw-bold">¥{{ cart_total }}</span>
+                        </h4>
+                    </div>
+                    <button class="btn btn-success btn-lg disabled" disabled>
+                        <span class="me-1">💳</span>去结算（演示）
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="text-muted small mt-2">
+            * 本项目为实训演示，不实现支付功能
+        </div>
+    </div>
+</div>
+{% else %}
+<!-- 购物车为空 -->
+<div class="text-center py-5">
+    <div class="display-1 text-muted mb-3">🛒</div>
+    <h4 class="text-muted">购物车是空的</h4>
+    <p class="text-muted mb-4">快去挑选心仪的生鲜商品吧！</p>
+    <a href="{{ url_for('index') }}" class="btn btn-success btn-lg">
+        <span class="me-1">←</span>去购物
+    </a>
+</div>
+{% endif %}
+{% endblock %}
