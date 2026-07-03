@@ -1,5 +1,6 @@
 import sqlite3
 import os
+from werkzeug.security import generate_password_hash
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(os.path.dirname(BASE_DIR))
@@ -33,6 +34,19 @@ def init_db():
         print('示例数据插入完成。')
     else:
         print(f'商品表已有 {product_count} 条数据，跳过初始化数据。')
+
+    cur.execute('SELECT COUNT(*) FROM users')
+    user_count = cur.fetchone()[0]
+    if user_count == 0:
+        demo_users = [
+            ('user1', generate_password_hash('123456'), 'customer'),
+            ('admin', generate_password_hash('admin123'), 'admin')
+        ]
+        cur.executemany(
+            'INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?)',
+            demo_users
+        )
+        print('演示账号创建完成：普通用户 user1/123456，管理员 admin/admin123。')
 
     conn.commit()
     conn.close()

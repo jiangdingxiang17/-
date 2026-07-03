@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}在线生鲜商城 - 结算{% endblock %}
+
+{% block content %}
+<!-- 页面标题 -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="text-success mb-0">
+        <span class="me-2">💳</span>订单结算
+    </h2>
+    <a href="{{ url_for('cart') }}" class="btn btn-outline-success">
+        <span class="me-1">←</span>返回购物车
+    </a>
+</div>
+
+<div class="row">
+    <!-- 左侧：商品清单 -->
+    <div class="col-lg-8 mb-4">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-success text-white fw-bold">
+                <span class="me-2">📦</span>商品清单
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">商品名称</th>
+                            <th class="text-center" style="width: 120px;">单价</th>
+                            <th class="text-center" style="width: 100px;">数量</th>
+                            <th class="text-center pe-4" style="width: 120px;">小计</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in cart_items %}
+                        <tr>
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3">
+                                        {% if item.image_url %}
+                                        <img src="{{ item.image_url }}" class="rounded" style="width: 50px; height: 50px; object-fit: cover;"
+                                             onerror="this.classList.add('d-none'); this.nextElementSibling.classList.remove('d-none');">
+                                        <div class="rounded d-none d-flex align-items-center justify-content-center bg-light" style="width: 50px; height: 50px;">
+                                            <span class="fs-5">
+                                                {% if item.category == '蔬菜' %}🥬{% endif %}
+                                                {% if item.category == '水果' %}🍎{% endif %}
+                                                {% if item.category == '肉类' %}🥩{% endif %}
+                                                {% if item.category == '鱼类' %}🐟{% endif %}
+                                            </span>
+                                        </div>
+                                        {% else %}
+                                        <div class="rounded d-flex align-items-center justify-content-center bg-light" style="width: 50px; height: 50px;">
+                                            <span class="fs-5">
+                                                {% if item.category == '蔬菜' %}🥬{% endif %}
+                                                {% if item.category == '水果' %}🍎{% endif %}
+                                                {% if item.category == '肉类' %}🥩{% endif %}
+                                                {% if item.category == '鱼类' %}🐟{% endif %}
+                                            </span>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold">{{ item.product_name }}</h6>
+                                        <small class="text-muted">
+                                            <span class="badge bg-success-subtle text-success-emphasis">{{ item.category }}</span>
+                                        </small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-center align-middle">
+                                <span class="fw-bold text-danger">¥{{ item.unit_price }}</span>
+                            </td>
+                            <td class="text-center align-middle">
+                                <span class="badge bg-secondary">{{ item.quantity }}</span>
+                            </td>
+                            <td class="text-center align-middle pe-4">
+                                <span class="fw-bold text-danger">¥{{ item.subtotal }}</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 收货信息表单 -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white fw-bold">
+                <span class="me-2">📍</span>收货信息
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('checkout') }}" method="post" id="checkoutForm">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="receiver_name" class="form-label fw-bold">收货人姓名 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="receiver_name" name="receiver_name"
+                                   placeholder="请输入收货人姓名" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="receiver_phone" class="form-label fw-bold">联系电话 <span class="text-danger">*</span></label>
+                            <input type="tel" class="form-control" id="receiver_phone" name="receiver_phone"
+                                   placeholder="请输入联系电话" required>
+                        </div>
+                        <div class="col-md-12">
+                            <label for="receiver_address" class="form-label fw-bold">收货地址 <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="receiver_address" name="receiver_address" rows="3"
+                                      placeholder="请输入详细收货地址" required></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 右侧：订单汇总 -->
+    <div class="col-lg-4">
+        <div class="card shadow-sm sticky-top" style="top: 20px;">
+            <div class="card-header bg-success text-white fw-bold">
+                <span class="me-2">💰</span>订单汇总
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">商品种类：</span>
+                        <span class="fw-bold">{{ cart_items|length }} 种</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">商品总数：</span>
+                        <span class="fw-bold">{{ cart_count }} 件</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">商品金额：</span>
+                        <span class="fw-bold">¥{{ product_total }}</span>
+                    </div>
+                    {% if is_employee and discount_amount > 0 %}
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">员工折扣（95折）：</span>
+                        <span class="fw-bold text-danger">-¥{{ discount_amount }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">小计：</span>
+                        <span class="fw-bold">¥{{ discounted_total }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">配送费用：</span>
+                        {% if shipping_fee == 0 %}
+                        <span class="fw-bold text-success">免运费</span>
+                        {% else %}
+                        <span class="fw-bold text-danger">¥{{ shipping_fee }}
+                            <small class="text-muted">(满{{ free_shipping_threshold }}元免运费)</small>
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+                <hr>
+                {% if is_employee and discount_amount > 0 %}
+                <div class="alert alert-success py-2 mb-3" role="alert">
+                    <small>🎉 <strong>员工专属优惠</strong>：已为您节省 ¥{{ discount_amount }}</small>
+                </div>
+                {% endif %}
+                {% if shipping_fee > 0 %}
+                <div class="alert alert-info py-2 mb-3" role="alert">
+                    <small>🚚 再买 <strong>¥{{ "%.2f"|format(free_shipping_threshold - discounted_total) }}</strong> 即可免运费</small>
+                </div>
+                {% endif %}
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <span class="fw-bold fs-5">实付金额：</span>
+                    <span class="text-danger fw-bold fs-3">¥{{ final_total }}</span>
+                </div>
+                <button type="submit" form="checkoutForm" class="btn btn-success btn-lg w-100 fw-bold">
+                    <span class="me-2">💳</span>确认支付（演示）
+                </button>
+                <div class="text-muted small mt-3 text-center">
+                    * 本项目为实训演示，不实现真实支付功能
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}在线生鲜商城 - 商品管理{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="text-success mb-0">
+        <span class="me-2">📦</span>商品管理
+    </h2>
+    <a href="{{ url_for('admin_product_new') }}" class="btn btn-success">
+        <span class="me-1">+</span>新增商品
+    </a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th class="ps-4" style="width: 60px;">ID</th>
+                    <th>商品名称</th>
+                    <th class="text-center" style="width: 100px;">分类</th>
+                    <th class="text-center" style="width: 100px;">价格</th>
+                    <th class="text-center" style="width: 100px;">库存</th>
+                    <th class="text-center" style="width: 100px;">状态</th>
+                    <th class="text-center pe-4" style="width: 150px;">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td class="ps-4 align-middle">{{ product.id }}</td>
+                    <td class="align-middle">
+                        <div class="d-flex align-items-center">
+                            {% if product.image_url %}
+                            <img src="{{ product.image_url }}" class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                            {% endif %}
+                            <span>{{ product.name }}</span>
+                        </div>
+                    </td>
+                    <td class="text-center align-middle">
+                        <span class="badge bg-success-subtle text-success-emphasis">{{ product.category }}</span>
+                    </td>
+                    <td class="text-center align-middle">¥{{ product.price }}</td>
+                    <td class="text-center align-middle">
+                        {% if product.stock < product.min_stock %}
+                        <span class="text-warning fw-bold">{{ product.stock }}</span>
+                        {% else %}
+                        <span>{{ product.stock }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center align-middle">
+                        {% if product.is_active %}
+                        <span class="badge bg-success">上架中</span>
+                        {% else %}
+                        <span class="badge bg-secondary">已下架</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center align-middle pe-4">
+                        <div class="d-flex justify-content-center gap-2">
+                            <a href="{{ url_for('admin_product_edit', product_id=product.id) }}" 
+                               class="btn btn-outline-success btn-sm">
+                                编辑
+                            </a>
+                            {% if product.is_active %}
+                            <form action="{{ url_for('admin_product_delete', product_id=product.id) }}" 
+                                  method="POST" class="d-inline">
+                                <button type="submit" class="btn btn-outline-danger btn-sm"
+                                        onclick="return confirm('确定要下架该商品吗？下架不会清空库存。');">
+                                    下架
+                                </button>
+                            </form>
+                            {% else %}
+                            <form action="{{ url_for('admin_product_activate', product_id=product.id) }}" 
+                                  method="POST" class="d-inline">
+                                <button type="submit" class="btn btn-outline-success btn-sm"
+                                        onclick="return confirm('确定要重新上架该商品吗？');">
+                                    上架
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if not products %}
+    <div class="card-body text-center">
+        <p class="text-muted">暂无商品数据</p>
+        <a href="{{ url_for('admin_product_new') }}" class="btn btn-success">
+            <span class="me-1">+</span>新增商品
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

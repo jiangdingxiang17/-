@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}在线生鲜商城 - 支付成功{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-body text-center py-5">
+                <div class="mb-4">
+                    <div class="display-1 text-success mb-3">
+                        <span class="me-2">✅</span>
+                    </div>
+                    <h2 class="text-success fw-bold mb-2">支付成功</h2>
+                    <p class="text-muted">您的订单已提交成功，感谢您的购买！</p>
+                </div>
+
+                <div class="card bg-light border-0 mb-4">
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-muted">订单编号：</span>
+                                    <span class="fw-bold font-monospace">{{ order.order_no if order else 'ORD20260702000001' }}</span>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-muted">商品金额：</span>
+                                    <span class="fw-bold">¥{{ order.original_price }}</span>
+                                </div>
+                            </div>
+                            {% if order.discount_amount and order.discount_amount > 0 %}
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-muted">员工折扣（95折）：</span>
+                                    <span class="text-danger fw-bold">-¥{{ order.discount_amount }}</span>
+                                </div>
+                            </div>
+                            {% endif %}
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-muted">配送费用：</span>
+                                    {% if order.shipping_fee and order.shipping_fee > 0 %}
+                                    <span class="fw-bold text-danger">¥{{ order.shipping_fee }}</span>
+                                    {% else %}
+                                    <span class="fw-bold text-success">免运费</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                                    <span class="text-muted">实付金额：</span>
+                                    <span class="text-danger fw-bold fs-4">¥{{ order.total_price if order else '0.00' }}</span>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-muted">订单状态：</span>
+                                    <span class="badge bg-success fs-6">
+                                        {{ order.status if order else '待发货' }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-muted">下单时间：</span>
+                                    <span class="fw-bold">{{ order.created_at if order else '2026-07-02 10:30:00' }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-3 justify-content-center">
+                    <a href="{{ url_for('orders') }}" class="btn btn-success btn-lg">
+                        <span class="me-2">📋</span>查看我的订单
+                    </a>
+                    <a href="{{ url_for('index') }}" class="btn btn-outline-success btn-lg">
+                        <span class="me-2">🏠</span>返回首页
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4 text-center">
+            <p class="text-muted small">
+                * 本项目为实训演示，不涉及真实支付和物流流程
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

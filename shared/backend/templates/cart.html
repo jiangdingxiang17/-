@@ -35,7 +35,16 @@
                         <div class="d-flex align-items-center">
                             <div class="me-3">
                                 {% if item.image_url %}
-                                <img src="{{ item.image_url }}" class="rounded" style="width: 60px; height: 60px; object-fit: cover;">
+                                <img src="{{ item.image_url }}" class="rounded" style="width: 60px; height: 60px; object-fit: cover;"
+                                     onerror="this.classList.add('d-none'); this.nextElementSibling.classList.remove('d-none');">
+                                <div class="rounded d-none d-flex align-items-center justify-content-center bg-light" style="width: 60px; height: 60px;">
+                                    <span class="fs-4">
+                                        {% if item.category == '蔬菜' %}🥬{% endif %}
+                                        {% if item.category == '水果' %}🍎{% endif %}
+                                        {% if item.category == '肉类' %}🥩{% endif %}
+                                        {% if item.category == '鱼类' %}🐟{% endif %}
+                                    </span>
+                                </div>
                                 {% else %}
                                 <div class="rounded d-flex align-items-center justify-content-center bg-light" style="width: 60px; height: 60px;">
                                     <span class="fs-4">
@@ -97,8 +106,30 @@
 </div>
 
 <!-- 总金额和结算 -->
-<div class="card shadow-sm">
+<div class="card shadow-sm mb-4">
     <div class="card-body">
+        <!-- 免运费进度条 -->
+        <div class="mb-3">
+            {% if amount_to_free_shipping > 0 %}
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <small class="text-muted">
+                    再买 <strong class="text-danger">¥{{ amount_to_free_shipping }}</strong> 即可免运费
+                </small>
+                <small class="text-muted">满 ¥{{ free_shipping_threshold }} 免运费</small>
+            </div>
+            <div class="progress" style="height: 8px;">
+                <div class="progress-bar bg-warning" role="progressbar"
+                     style="width: {{ (cart_total / free_shipping_threshold * 100)|int }}%;"
+                     aria-valuenow="{{ cart_total }}" aria-valuemin="0" aria-valuemax="{{ free_shipping_threshold }}">
+                </div>
+            </div>
+            {% else %}
+            <div class="d-flex justify-content-between align-items-center">
+                <small class="text-success fw-bold">🎉 已满足免运费条件</small>
+                <small class="text-muted">满 ¥{{ free_shipping_threshold }} 免运费</small>
+            </div>
+            {% endif %}
+        </div>
         <div class="row align-items-center">
             <div class="col-md-6">
                 <p class="text-muted mb-0">
@@ -108,14 +139,28 @@
             </div>
             <div class="col-md-6">
                 <div class="d-flex justify-content-end align-items-center">
-                    <div class="me-4">
+                    <div class="me-4 text-end">
+                        <div class="mb-1">
+                            <span class="text-muted small">商品合计：</span>
+                            <span class="text-muted">¥{{ cart_total }}</span>
+                        </div>
+                        <div class="mb-1">
+                            <span class="text-muted small">运费预估：</span>
+                            {% if estimated_shipping == 0 %}
+                            <span class="text-success fw-bold">免运费 🎉</span>
+                            {% else %}
+                            <span>¥{{ "%.2f"|format(estimated_shipping) }}</span>
+                            <small class="text-muted">（实付2-10元随机）</small>
+                            {% endif %}
+                        </div>
                         <h4 class="mb-0">
-                            总金额：<span class="text-danger fw-bold">¥{{ cart_total }}</span>
+                            预计实付：<span class="text-danger fw-bold">¥{{ "%.2f"|format(estimated_total) }}</span>
                         </h4>
+                        <small class="text-muted">满¥{{ free_shipping_threshold }}免运费</small>
                     </div>
-                    <button class="btn btn-success btn-lg disabled" disabled>
-                        <span class="me-1">💳</span>去结算（演示）
-                    </button>
+                    <a href="{{ url_for('checkout') }}" class="btn btn-success btn-lg">
+    <span class="me-1">💳</span>去结算
+</a>
                 </div>
             </div>
         </div>
@@ -124,6 +169,61 @@
         </div>
     </div>
 </div>
+
+<!-- 凑单推荐 -->
+{% if filler_recommendations and amount_to_free_shipping > 0 %}
+<div class="card shadow-sm">
+    <div class="card-header bg-warning text-dark fw-bold">
+        <span class="me-2">💡</span>凑单推荐 - 再买 ¥{{ amount_to_free_shipping }} 免运费
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
+            {% for product in filler_recommendations %}
+            <div class="col-md-3">
+                <div class="card h-100 border-warning-subtle">
+                    <div class="card-img-top-wrapper">
+                        {% if product.image_url %}
+                        <img src="{{ product.image_url }}" class="card-img-top" alt="{{ product.name }}"
+                             onerror="this.classList.add('d-none'); this.nextElementSibling.classList.remove('d-none');">
+                        <div class="card-img-top placeholder-img d-none d-flex align-items-center justify-content-center">
+                            <span class="display-4">
+                                {% if product.category == '蔬菜' %}🥬{% endif %}
+                                {% if product.category == '水果' %}🍎{% endif %}
+                                {% if product.category == '肉类' %}🥩{% endif %}
+                                {% if product.category == '鱼类' %}🐟{% endif %}
+                            </span>
+                        </div>
+                        {% else %}
+                        <div class="card-img-top placeholder-img d-flex align-items-center justify-content-center">
+                            <span class="display-4">
+                                {% if product.category == '蔬菜' %}🥬{% endif %}
+                                {% if product.category == '水果' %}🍎{% endif %}
+                                {% if product.category == '肉类' %}🥩{% endif %}
+                                {% if product.category == '鱼类' %}🐟{% endif %}
+                            </span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="card-body p-2">
+                        <h6 class="card-title fw-bold text-truncate mb-1">{{ product.name }}</h6>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-danger fw-bold">¥{{ product.price }}</span>
+                            <span class="text-success small">库存: {{ product.stock }}</span>
+                        </div>
+                        <form action="{{ url_for('cart_add', product_id=product.id) }}" method="post">
+                            <input type="hidden" name="next" value="{{ url_for('cart') }}">
+                            <button type="submit" class="btn btn-outline-success btn-sm w-100">
+                                <span class="me-1">➕</span>加入购物车
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
 {% else %}
 <!-- 购物车为空 -->
 <div class="text-center py-5">

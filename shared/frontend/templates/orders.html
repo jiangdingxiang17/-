@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+
+{% block title %}在线生鲜商城 - 我的订单{% endblock %}
+
+{% block content %}
+<!-- 页面标题 -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="text-success mb-0">
+        <span class="me-2">📋</span>我的订单
+    </h2>
+    <a href="{{ url_for('index') }}" class="btn btn-outline-success">
+        <span class="me-1">←</span>继续购物
+    </a>
+</div>
+
+{% if orders %}
+<!-- 订单列表 -->
+<div class="space-y-4">
+    {% for order in orders %}
+    <div class="card shadow-sm mb-4">
+        <!-- 订单头部 -->
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-4">
+                <span class="text-muted">
+                    <span class="me-1">📅</span>下单时间：<span class="fw-bold">{{ order.created_at }}</span>
+                </span>
+                <span class="text-muted">
+                    <span class="me-1">🔢</span>订单号：<span class="fw-bold font-monospace">{{ order.order_no }}</span>
+                </span>
+            </div>
+            <div>
+                {% if order.status == '已付款待发货' %}
+                <span class="badge bg-info text-dark fs-6">已付款，等待发货</span>
+                {% elif order.status == '已发货' %}
+                <span class="badge bg-primary fs-6">已发货</span>
+                {% elif order.status == '交易完成' %}
+                <span class="badge bg-success fs-6">交易完成</span>
+                {% elif order.status == '已取消' %}
+                <span class="badge bg-secondary fs-6">已取消</span>
+                {% else %}
+                <span class="badge bg-primary fs-6">{{ order.status }}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 订单商品列表（可展开） -->
+        <div class="card-body p-0">
+            {% if order.order_items %}
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">商品名称</th>
+                        <th class="text-center" style="width: 120px;">单价</th>
+                        <th class="text-center" style="width: 100px;">数量</th>
+                        <th class="text-center pe-4" style="width: 120px;">小计</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order.order_items %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center">
+                                <div class="me-3">
+                                    {% if item.image_url %}
+                                    <img src="{{ item.image_url }}" class="rounded" style="width: 50px; height: 50px; object-fit: cover;"
+                                         onerror="this.classList.add('d-none'); this.nextElementSibling.classList.remove('d-none');">
+                                    <div class="rounded d-none d-flex align-items-center justify-content-center bg-light" style="width: 50px; height: 50px;">
+                                        <span class="fs-5">
+                                            {% if item.category == '蔬菜' %}🥬{% endif %}
+                                            {% if item.category == '水果' %}🍎{% endif %}
+                                            {% if item.category == '肉类' %}🥩{% endif %}
+                                            {% if item.category == '鱼类' %}🐟{% endif %}
+                                        </span>
+                                    </div>
+                                    {% else %}
+                                    <div class="rounded d-flex align-items-center justify-content-center bg-light" style="width: 50px; height: 50px;">
+                                        <span class="fs-5">
+                                            {% if item.category == '蔬菜' %}🥬{% endif %}
+                                            {% if item.category == '水果' %}🍎{% endif %}
+                                            {% if item.category == '肉类' %}🥩{% endif %}
+                                            {% if item.category == '鱼类' %}🐟{% endif %}
+                                        </span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <h6 class="mb-0 fw-bold">{{ item.product_name }}</h6>
+                                    <small class="text-muted">
+                                        <span class="badge bg-success-subtle text-success-emphasis">{{ item.category }}</span>
+                                    </small>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="text-center align-middle">
+                            <span class="fw-bold text-danger">¥{{ item.unit_price }}</span>
+                        </td>
+                        <td class="text-center align-middle">
+                            <span class="badge bg-secondary">{{ item.quantity }}</span>
+                        </td>
+                        <td class="text-center align-middle pe-4">
+                            <span class="fw-bold text-danger">¥{{ item.subtotal }}</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+        </div>
+
+        <!-- 订单底部 -->
+        <div class="card-footer bg-white d-flex justify-content-between align-items-center">
+            <div class="text-muted small">
+                {% if order.receiver_name %}
+                <span class="me-3">收货人：{{ order.receiver_name }}</span>
+                <span class="me-3">电话：{{ order.receiver_phone }}</span>
+                <span>地址：{{ order.receiver_address }}</span>
+                {% endif %}
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="text-muted">共 {{ order.item_count if order.item_count else (order.order_items|length if order.order_items else 0) }} 件商品，</span>
+                <span class="fs-5">
+                    订单总价：<span class="text-danger fw-bold">¥{{ order.total_price }}</span>
+                    {% if order.shipping_fee and order.shipping_fee > 0 %}
+                    <span class="text-muted small ms-1">(含运费¥{{ order.shipping_fee }})</span>
+                    {% endif %}
+                    {% if order.discount_amount and order.discount_amount > 0 %}
+                    <span class="badge bg-warning text-dark ms-2" style="font-size: 0.65em;">员工95折 省¥{{ order.discount_amount }}</span>
+                    {% endif %}
+                </span>
+                {% if order.status == '已付款待发货' or order.status == '已发货' %}
+                <form action="{{ url_for('cancel_order', order_id=order.id) }}" method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-outline-danger btn-sm"
+                            onclick="return confirm('确定要取消该订单吗？取消后库存将恢复。');">
+                        取消订单
+                    </button>
+                </form>
+                {% endif %}
+                {% if order.status == '已发货' %}
+                <form action="{{ url_for('confirm_receipt', order_id=order.id) }}" method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-success btn-sm"
+                            onclick="return confirm('确认已收到商品吗？确认后订单将完成交易。');">
+                        <span class="me-1">✅</span>确认收货
+                    </button>
+                </form>
+                {% endif %}
+                {% if order.status == '交易完成' %}
+                {% if order.reviewed %}
+                <a href="{{ url_for('review_order', order_id=order.id) }}" class="btn btn-outline-secondary btn-sm">
+                    <span class="me-1">👀</span>查看评价
+                </a>
+                {% else %}
+                <a href="{{ url_for('review_order', order_id=order.id) }}" class="btn btn-warning btn-sm">
+                    <span class="me-1">⭐</span>去评价
+                </a>
+                {% endif %}
+                {% endif %}
+                <button class="btn btn-outline-success btn-sm" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#orderDetail{{ order.id }}"
+                        aria-expanded="false" aria-controls="orderDetail{{ order.id }}">
+                    查看详情
+                </button>
+            </div>
+        </div>
+
+        <!-- 展开的详情区域（可选） -->
+        <div class="collapse" id="orderDetail{{ order.id }}">
+            <div class="card-body border-top">
+                <h6 class="fw-bold mb-3">订单详情</h6>
+                <div class="row g-2">
+                    <div class="col-md-4">
+                        <span class="text-muted">订单编号：</span>
+                        <span class="fw-bold font-monospace">{{ order.order_no }}</span>
+                    </div>
+                    <div class="col-md-4">
+                        <span class="text-muted">创建时间：</span>
+                        <span class="fw-bold">{{ order.created_at }}</span>
+                    </div>
+                    <div class="col-md-4">
+                        <span class="text-muted">订单状态：</span>
+                        {% if order.status == '已付款待发货' %}
+                        <span class="fw-bold text-info">已付款，等待发货</span>
+                        {% elif order.status == '已发货' %}
+                        <span class="fw-bold text-primary">已发货</span>
+                        {% elif order.status == '交易完成' %}
+                        <span class="fw-bold text-success">交易完成</span>
+                        {% elif order.status == '已取消' %}
+                        <span class="fw-bold text-muted">已取消</span>
+                        {% else %}
+                        <span class="fw-bold">{{ order.status }}</span>
+                        {% endif %}
+                    </div>
+                    {% if order.receiver_name %}
+                    <div class="col-md-4">
+                        <span class="text-muted">收货人：</span>
+                        <span class="fw-bold">{{ order.receiver_name }}</span>
+                    </div>
+                    <div class="col-md-4">
+                        <span class="text-muted">联系电话：</span>
+                        <span class="fw-bold">{{ order.receiver_phone }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="col-md-12">
+                        <span class="text-muted">收货地址：</span>
+                        <span class="fw-bold">{{ order.receiver_address if order.receiver_address else '-' }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<!-- 无订单提示 -->
+<div class="text-center py-5">
+    <div class="display-1 text-muted mb-3">📭</div>
+    <h4 class="text-muted">暂无订单</h4>
+    <p class="text-muted mb-4">您还没有任何订单，快去挑选心仪的生鲜商品吧！</p>
+    <a href="{{ url_for('index') }}" class="btn btn-success btn-lg">
+        <span class="me-1">🛒</span>去购物
+    </a>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .space-y-4 > * + * {
+        margin-top: 1rem;
+    }
+</style>
+{% endblock %}
