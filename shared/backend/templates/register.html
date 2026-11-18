@@ -1,41 +1,242 @@
 {% extends "base.html" %}
 
-{% block title %}在线生鲜商城 - 用户注册{% endblock %}
+{% block title %}鲜直达 - 用户注册{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background: linear-gradient(135deg, #134e5e 0%, #71b280 50%, #a8e063 100%);
+        min-height: 100vh;
+        margin: 0;
+        padding: 0;
+    }
+    
+    .navbar, footer {
+        display: none !important;
+    }
+    
+    .register-page {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+    
+    .register-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        padding: 40px;
+        width: 100%;
+        max-width: 450px;
+        animation: slideUp 0.5s ease-out;
+    }
+    
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .register-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .register-logo {
+        font-size: 4rem;
+        margin-bottom: 15px;
+        animation: bounce 1s ease infinite;
+    }
+    
+    @keyframes bounce {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+    
+    .register-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #134e5e;
+        margin-bottom: 8px;
+    }
+    
+    .register-subtitle {
+        color: #6c757d;
+        font-size: 0.95rem;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .input-group {
+        position: relative;
+    }
+    
+    .input-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1.1rem;
+        color: #6c757d;
+        z-index: 1;
+    }
+    
+    .form-control {
+        padding-left: 45px;
+        height: 48px;
+        border-radius: 12px;
+        border: 2px solid #e9ecef;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        border-color: #28a745;
+        box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.15);
+        border-width: 2px;
+    }
+    
+    .form-control::placeholder {
+        color: #adb5bd;
+    }
+    
+    .btn-register {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+        height: 50px;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+    
+    .btn-register:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(40, 167, 69, 0.4);
+    }
+    
+    .btn-register:active {
+        transform: translateY(0);
+    }
+    
+    .login-link {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 0.9rem;
+    }
+    
+    .login-link a {
+        color: #28a745;
+        font-weight: 500;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+    
+    .login-link a:hover {
+        color: #218838;
+        text-decoration: underline;
+    }
+    
+    .alert {
+        border-radius: 12px;
+        animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .form-text {
+        color: #6c757d;
+        font-size: 0.85rem;
+        margin-top: 4px;
+        display: block;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6 col-lg-5">
-        <div class="card shadow-sm">
-            <div class="card-body p-4">
-                <h2 class="text-success mb-4">用户注册</h2>
-                <p class="text-muted small mb-4">
-                    注册普通消费者账号后，购物车内容会与当前账号绑定。
-                </p>
+<div class="register-page">
+    <div class="register-card">
+        <div class="register-header">
+            <div class="register-logo">🥬</div>
+            <div class="register-title">鲜直达</div>
+            <div class="register-subtitle">加入我们，开启品质生活</div>
+        </div>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category if category in ['success', 'danger', 'warning', 'info'] else 'info' }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
 
-                <form action="{{ url_for('register') }}" method="post">
-                    <div class="mb-3">
-                        <label for="username" class="form-label">用户名</label>
-                        <input type="text" class="form-control" id="username" name="username"
-                               placeholder="至少 3 个字符" minlength="3" required autofocus>
-                    </div>
-                    <div class="mb-3">
-                        <label for="password" class="form-label">密码</label>
-                        <input type="password" class="form-control" id="password" name="password"
-                               placeholder="至少 6 个字符" minlength="6" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="confirm_password" class="form-label">确认密码</label>
-                        <input type="password" class="form-control" id="confirm_password" name="confirm_password"
-                               placeholder="请再次输入密码" minlength="6" required>
-                    </div>
-                    <button type="submit" class="btn btn-success w-100">注册</button>
-                </form>
-
-                <div class="text-center mt-3">
-                    <span class="text-muted small">已有账号？</span>
-                    <a href="{{ url_for('login') }}" class="small text-success">去登录</a>
+        <form action="{{ url_for('register') }}" method="post">
+            <div class="form-group">
+                <label for="username" class="form-label text-muted small mb-1">用户名</label>
+                <div class="input-group">
+                    <span class="input-icon">👤</span>
+                    <input type="text" class="form-control" id="username" name="username"
+                           placeholder="至少 3 个字符" minlength="3" required autofocus>
+                </div>
+                <span class="form-text">用户名由字母、数字组成，至少3个字符</span>
+            </div>
+            
+            <div class="form-group">
+                <label for="password" class="form-label text-muted small mb-1">密码</label>
+                <div class="input-group">
+                    <span class="input-icon">🔒</span>
+                    <input type="password" class="form-control" id="password" name="password"
+                           placeholder="至少 6 个字符" minlength="6" required>
+                </div>
+                <span class="form-text">密码至少6个字符，请设置安全密码</span>
+            </div>
+            
+            <div class="form-group">
+                <label for="confirm_password" class="form-label text-muted small mb-1">确认密码</label>
+                <div class="input-group">
+                    <span class="input-icon">🔑</span>
+                    <input type="password" class="form-control" id="confirm_password" name="confirm_password"
+                           placeholder="请再次输入密码" minlength="6" required>
                 </div>
             </div>
+            
+            <button type="submit" class="btn-register">
+                注册
+            </button>
+        </form>
+
+        <div class="login-link">
+            <span class="text-muted">已有账号？</span>
+            <a href="{{ url_for('login') }}">去登录</a>
         </div>
     </div>
 </div>

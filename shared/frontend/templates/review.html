@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}鲜直达-在线生鲜商城 - 订单评价{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="text-success mb-0">
+        <span class="me-2">⭐</span>订单评价
+    </h2>
+    <a href="{{ url_for('orders') }}" class="btn btn-outline-success">
+        <span class="me-1">←</span>返回订单
+    </a>
+</div>
+
+<!-- 订单信息 -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <span class="text-muted me-3">订单号：<span class="fw-bold font-monospace">{{ order_no }}</span></span>
+                <span class="text-muted">下单时间：{{ order.created_at }}</span>
+            </div>
+            <span class="badge bg-success fs-6">交易完成</span>
+        </div>
+    </div>
+</div>
+
+{% if already_reviewed %}
+<div class="alert alert-success border-0 shadow-sm">
+    <span class="me-2">✅</span>该订单所有商品已评价完成，感谢您的反馈！
+</div>
+{% endif %}
+
+<!-- 评价表单 -->
+<form method="post" action="{{ url_for('review_order', order_id=order.id) }}">
+    {% for item in items %}
+    <div class="card shadow-sm mb-3">
+        <div class="card-body">
+            <div class="d-flex align-items-start">
+                <!-- 商品图片 -->
+                <div class="me-3">
+                    {% if item.image_url %}
+                    <img src="{{ item.image_url }}" class="rounded" style="width: 64px; height: 64px; object-fit: cover;"
+                         onerror="this.classList.add('d-none'); this.nextElementSibling.classList.remove('d-none');">
+                    <div class="rounded d-none d-flex align-items-center justify-content-center bg-light" style="width: 64px; height: 64px;">
+                        <span class="fs-3">
+                            {% if item.category == '蔬菜' %}🥬{% endif %}
+                            {% if item.category == '水果' %}🍎{% endif %}
+                            {% if item.category == '肉类' %}🥩{% endif %}
+                            {% if item.category == '鱼类' %}🐟{% endif %}
+                        </span>
+                    </div>
+                    {% else %}
+                    <div class="rounded d-flex align-items-center justify-content-center bg-light" style="width: 64px; height: 64px;">
+                        <span class="fs-3">
+                            {% if item.category == '蔬菜' %}🥬{% endif %}
+                            {% if item.category == '水果' %}🍎{% endif %}
+                            {% if item.category == '肉类' %}🥩{% endif %}
+                            {% if item.category == '鱼类' %}🐟{% endif %}
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="flex-grow-1">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <h6 class="mb-0 fw-bold">{{ item.product_name }}</h6>
+                            <small class="text-muted">
+                                <span class="badge bg-success-subtle text-success-emphasis">{{ item.category }}</span>
+                                <span class="ms-2">¥{{ item.product_price }} × {{ item.quantity }}</span>
+                            </small>
+                        </div>
+                        {% if item.rated %}
+                        <span class="badge bg-success">已评价</span>
+                        {% endif %}
+                    </div>
+
+                    {% if item.rated %}
+                    <!-- 已评价内容展示 -->
+                    <div class="mt-2">
+                        <span class="text-muted small">您的评分：</span>
+                        {% for i in range(1, 6) %}
+                            {% if i <= item.rated %}⭐{% else %}☆{% endif %}
+                        {% endfor %}
+                        {% if item.rated_comment %}
+                        <p class="text-muted small mt-1 mb-0">"{{ item.rated_comment }}"</p>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <!-- 评分选择 -->
+                    <div class="mb-2">
+                        <label class="form-label small text-muted mb-1">评分</label>
+                        <div class="rating-group" data-name="rating_{{ item.product_id }}">
+                            {% for i in range(5, 0, -1) %}
+                            <label class="me-2">
+                                <input type="radio" name="rating_{{ item.product_id }}" value="{{ i }}" class="btn-check" required>
+                                <span class="rating-star">{{ i }}⭐</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <!-- 评语 -->
+                    <div>
+                        <label class="form-label small text-muted mb-1">评价内容（选填）</label>
+                        <textarea name="comment_{{ item.product_id }}" class="form-control" rows="2"
+                                  placeholder="说说你对这款商品的看法..."></textarea>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    {% if not already_reviewed %}
+    <div class="text-center">
+        <button type="submit" class="btn btn-success btn-lg">
+            <span class="me-1">✅</span>提交评价
+        </button>
+        <a href="{{ url_for('orders') }}" class="btn btn-outline-secondary btn-lg ms-2">稍后评价</a>
+    </div>
+    {% endif %}
+</form>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.rating-star {
+    cursor: pointer;
+    padding: 4px 10px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+.rating-group label:hover .rating-star {
+    border-color: #198754;
+    background-color: #d1e7dd;
+}
+.rating-group input:checked + .rating-star {
+    background-color: #198754;
+    color: white;
+    border-color: #198754;
+}
+</style>
+{% endblock %}

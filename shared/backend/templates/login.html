@@ -1,43 +1,275 @@
 {% extends "base.html" %}
 
-{% block title %}在线生鲜商城 - 用户登录{% endblock %}
+{% block title %}鲜直达 - 用户登录{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background: linear-gradient(135deg, #134e5e 0%, #71b280 50%, #a8e063 100%);
+        min-height: 100vh;
+        margin: 0;
+        padding: 0;
+    }
+    
+    .navbar, footer {
+        display: none !important;
+    }
+    
+    .login-page {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+    
+    .login-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        padding: 40px;
+        width: 100%;
+        max-width: 420px;
+        animation: slideUp 0.5s ease-out;
+    }
+    
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .login-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .login-logo {
+        font-size: 4rem;
+        margin-bottom: 15px;
+        animation: bounce 1s ease infinite;
+    }
+    
+    @keyframes bounce {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+    
+    .login-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #134e5e;
+        margin-bottom: 8px;
+    }
+    
+    .login-subtitle {
+        color: #6c757d;
+        font-size: 0.95rem;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .input-group {
+        position: relative;
+    }
+    
+    .input-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1.1rem;
+        color: #6c757d;
+        z-index: 1;
+    }
+    
+    .form-control {
+        padding-left: 45px;
+        height: 48px;
+        border-radius: 12px;
+        border: 2px solid #e9ecef;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        border-color: #28a745;
+        box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.15);
+        border-width: 2px;
+    }
+    
+    .form-control::placeholder {
+        color: #adb5bd;
+    }
+    
+    .btn-login {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+        height: 50px;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+    
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(40, 167, 69, 0.4);
+    }
+    
+    .btn-login:active {
+        transform: translateY(0);
+    }
+    
+    .demo-account {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 25px;
+        border-left: 4px solid #28a745;
+    }
+    
+    .demo-title {
+        font-weight: 600;
+        color: #134e5e;
+        margin-bottom: 10px;
+        font-size: 0.95rem;
+    }
+    
+    .demo-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 6px 0;
+        font-size: 0.9rem;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .demo-item:last-child {
+        border-bottom: none;
+    }
+    
+    .demo-label {
+        color: #6c757d;
+    }
+    
+    .demo-value {
+        font-weight: 500;
+        color: #495057;
+        font-family: 'Consolas', monospace;
+    }
+    
+    .register-link {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 0.9rem;
+    }
+    
+    .register-link a {
+        color: #28a745;
+        font-weight: 500;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+    
+    .register-link a:hover {
+        color: #218838;
+        text-decoration: underline;
+    }
+    
+    .alert {
+        border-radius: 12px;
+        animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6 col-lg-5">
-        <div class="card shadow-sm">
-            <div class="card-body p-4">
-                <h2 class="text-success mb-4">用户登录</h2>
-                <p class="text-muted small mb-4">
-                    登录后可以使用个人购物车，并为后续支付演示和订单生成做准备。
-                </p>
-
-                <form action="{{ url_for('login') }}" method="post">
-                    <input type="hidden" name="next" value="{{ next }}">
-                    <div class="mb-3">
-                        <label for="username" class="form-label">用户名</label>
-                        <input type="text" class="form-control" id="username" name="username"
-                               placeholder="请输入用户名" required autofocus>
+<div class="login-page">
+    <div class="login-card">
+        <div class="login-header">
+            <div class="login-logo">🥬</div>
+            <div class="login-title">鲜直达</div>
+            <div class="login-subtitle">新鲜直达，品质生活</div>
+        </div>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category if category in ['success', 'danger', 'warning', 'info'] else 'info' }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
-                    <div class="mb-3">
-                        <label for="password" class="form-label">密码</label>
-                        <input type="password" class="form-control" id="password" name="password"
-                               placeholder="请输入密码" required>
-                    </div>
-                    <button type="submit" class="btn btn-success w-100">登录</button>
-                </form>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
 
-                <div class="alert alert-light border mt-4 mb-0 small">
-                    <div class="fw-bold mb-1">演示账号</div>
-                    <div>普通用户：user1 / 123456</div>
-                    <div>管理员：admin / admin123</div>
-                </div>
-
-                <div class="text-center mt-3">
-                    <span class="text-muted small">还没有账号？</span>
-                    <a href="{{ url_for('register') }}" class="small text-success">去注册</a>
+        <form action="{{ url_for('login') }}" method="post">
+            <input type="hidden" name="next" value="{{ next }}">
+            
+            <div class="form-group">
+                <label for="username" class="form-label text-muted small mb-1">用户名</label>
+                <div class="input-group">
+                    <span class="input-icon">👤</span>
+                    <input type="text" class="form-control" id="username" name="username"
+                           placeholder="请输入用户名" required autofocus>
                 </div>
             </div>
+            
+            <div class="form-group">
+                <label for="password" class="form-label text-muted small mb-1">密码</label>
+                <div class="input-group">
+                    <span class="input-icon">🔒</span>
+                    <input type="password" class="form-control" id="password" name="password"
+                           placeholder="请输入密码" required>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn-login">
+                登录
+            </button>
+        </form>
+
+        <div class="demo-account">
+            <div class="demo-title">📋 演示账号</div>
+            <div class="demo-item">
+                <span class="demo-label">普通用户</span>
+                <span class="demo-value">user1 / 123456</span>
+            </div>
+            <div class="demo-item">
+                <span class="demo-label">管理员</span>
+                <span class="demo-value">admin / admin123</span>
+            </div>
+        </div>
+
+        <div class="register-link">
+            <span class="text-muted">还没有账号？</span>
+            <a href="{{ url_for('register') }}">去注册</a>
         </div>
     </div>
 </div>
